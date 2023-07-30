@@ -22,7 +22,7 @@ while True:
         break
 
 
-speed = 1500
+speed = 1350
 angle = 2060
 ser.write((str(speed) + "\n").encode('utf-8'))
 print("speed: ", speed)
@@ -30,7 +30,7 @@ ser.write((str(angle) + "\n").encode('utf-8'))
 print("angle: ", angle)
             
 #roi coordinates
-points = [(180, 160), (0, 305), (799, 305), (620, 160)]
+points = [(180, 160), (0, 290), (799, 290), (620, 160)]
 
 #set up pi camera
 picam2 = Picamera2()
@@ -44,11 +44,11 @@ picam2.start()
 
 proportional=0
 error=0
-#prevError=0
-target=-2500
-#diff=0
-#kd=10000
-kp=-0.001
+prevError=0
+target=-2700
+diff=0
+kd=0
+kp=-0.0008
 
 
 while True:
@@ -134,17 +134,17 @@ while True:
     error = leftArea-rightArea
     print("error: ", error)
     proportional=(target - error)*kp
-    #diff=error-prevError
-    #motorsTurningPleaseFix=proportional+diff*kd
-    #prevError=error
+    diff=error-prevError
+    motorSteering=proportional+(diff*kd)
+    prevError=error
     #print(motorsTurningPleaseFix)
-    print(proportional)
-    if(proportional > -30 and proportional < 30):
-        angle = 2060 + proportional
+    print(motorSteering)
+    if(motorSteering > -30 and motorSteering < 30):
+        angle = 2060 + motorSteering
         angle = int(angle)
         ser.write((str(angle)+"\n").encode('utf-8'))
         print("angle: ", angle)
-    elif(proportional > 30):
+    elif(motorSteering > 30):
         angle = 2090
         ser.write((str(angle)+"\n").encode('utf-8'))
         print("angle: ", angle)
@@ -153,7 +153,7 @@ while True:
         ser.write((str(angle)+"\n").encode('utf-8'))
         print("angle: ", angle)
         
-    speed = 1500
+    speed = 1350
     ser.write((str(speed) + "\n").encode('utf-8'))
     print("speed: ", speed)
 
