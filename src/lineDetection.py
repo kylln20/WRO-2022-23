@@ -7,7 +7,7 @@ import serial
 from readchar import readkey, key
 from time import sleep
 
-ser = serial.Serial('/dev/ttyACM0', 9600, timeout = 1) #approximately 960 characters per second
+ser = serial.Serial('/dev/ttyACM0', 115200, timeout = 1) #approximately 115200 characters per second
 ser.flush() #block the program until all the outgoing data has been sent
 
 
@@ -22,7 +22,7 @@ while True:
         break
 
 
-speed = 1500
+speed = 1370
 angle = 2060
 ser.write((str(speed) + "\n").encode('utf-8'))
 print("speed: ", speed)
@@ -48,9 +48,10 @@ prevError=0
 target=0
 diff=0
 kd=0
-kp=-0.0005
+kp=-0.010
 
 turning = False
+#prevTurn = " "
 
 prevFrameTime = 0
 newFrameTime = 0
@@ -66,7 +67,7 @@ while True:
     #use edge detection on image
     imGray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     imgBlur = cv2.GaussianBlur(imGray, (13, 13), 0)
-    ret, imgThresh = cv2.threshold(imGray, 50, 255, cv2.THRESH_BINARY_INV)
+    ret, imgThresh = cv2.threshold(imGray, 50, 255, cv2.THRESH_BINARY)
     v = np.median(imgBlur)
     lowThresh = int(max(0, (1.0 - 0.33) * v))
     highThresh = int(min(180, (1.0 + 0.33) * v))
@@ -98,19 +99,21 @@ while True:
     
     #cv2.imshow("perspective", imgPerspective)
     
-    imgInversePerspective = cv2.bitwise_not(imgPerspective)
     
     ####new regions of interest
-    cv2.rectangle(imgPerspectiveRGB, (0, 200), (200, 600), (0, 255, 0), 2) #left
-    cv2.rectangle(imgPerspectiveRGB, (600, 200), (800, 600), (0, 255, 0), 2) #right
     """
+    cv2.rectangle(imgRoi, (0, 250), (200, 600), (0, 255, 0), 2) #left
+    cv2.rectangle(imgRoi, (600, 250), (800, 600), (0, 255, 0), 2) #right
+    
     #keep car going straight
     ## initial contour detection
     #contours, hierarchy = cv2.findContours(imgInversePerspective, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     #print(len(contours))
     
-    leftContours, lefthierarchy = cv2.findContours(imgThresh[100:600, 0:200].copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    rightContours, righthierarchy = cv2.findContours(imgThresh[100: 600, 600: 800].copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    imgThresh = cv2.bitwise_not(imgThresh)
+
+    leftContours, lefthierarchy = cv2.findContours(imgThresh[250:600, 0:200].copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    rightContours, righthierarchy = cv2.findContours(imgThresh[250: 600, 600: 800].copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     maxLeftArea = 0
     leftArea = 0
@@ -119,7 +122,7 @@ while True:
         if leftArea > 300:
             x, y, w, h = cv2.boundingRect(i)
             #cv2.rectangle(imgPerspectiveRGB, (x, y+200), (x+w, y+h+200), (0, 0, 255), 2) #add crop offset 
-            cv2.rectangle(imgRoi, (x, y+100), (x+w, y+h+100), (0, 0, 255), 2)
+            cv2.rectangle(imgRoi, (x, y+250), (x+w, y+h+250), (0, 0, 255), 2)
             if leftArea > maxLeftArea:
                 maxLeftArea = leftArea
     leftArea = maxLeftArea
@@ -132,7 +135,7 @@ while True:
         if rightArea > 300:
             x, y, w, h = cv2.boundingRect(i)
             #cv2.rectangle(imgPerspectiveRGB, (x+600, y+200), (x+w+600, y+h+200), (255, 0, 0), 2)#add crop offset 
-            cv2.rectangle(imgRoi, (x+600, y+100), (x+w+600, y+h+100), (255, 0, 0), 2) 
+            cv2.rectangle(imgRoi, (x+600, y+250), (x+w+600, y+h+250), (255, 0, 0), 2) 
             if rightArea > maxRightArea:
                 maxRightArea = rightArea
     rightArea = maxRightArea
@@ -140,7 +143,7 @@ while True:
     print("left area:", leftArea)
     print("right area:", rightArea)
     
-    
+    print("turning: ", turning)
     if(not turning):
         error = leftArea-rightArea
         print("error: ", error)
@@ -163,7 +166,7 @@ while True:
             ser.write((str(angle)+"\n").encode('utf-8'))
             print("angle: ", angle)
         
-        speed = 1500
+        speed = 1370
         ser.write((str(speed) + "\n").encode('utf-8'))
         print("speed: ", speed)
     
@@ -197,21 +200,21 @@ while True:
     #    turning = False
     
     
-    if leftArea < 100:
+    if leftArea < 20:
         print("turning left")
         turning = True
-        angle = 2035
+        angle = 2025
         ser.write((str(angle) + "\n").encode('utf-8'))
         print("angle: ", angle)
-        speed = 1500
+        speed = 1370
         ser.write((str(speed) + "\n").encode('utf-8'))
         print("speed: ", speed)
-    elif rightArea < 100:
+    elif rightArea < 10:
         print("turning right")
-        angle = 2085
+        angle = 2095
         ser.write((str(angle) + "\n").encode('utf-8'))
         print("angle: ", angle)
-        speed = 1500
+        speed = 1370
         ser.write((str(speed) + "\n").encode('utf-8'))
         print("speed: ", speed)
     else:
