@@ -21,8 +21,8 @@ while True:
     if GPIO.input(5) == GPIO.LOW:
         break
 
-
-speed = 1370
+#1370
+speed = 1300
 angle = 2060
 ser.write((str(speed) + "\n").encode('utf-8'))
 print("speed: ", speed)
@@ -48,7 +48,7 @@ prevError=0
 target=0
 diff=0
 kd=0
-kp=-0.010
+kp=-0.0012
 
 turning = False
 #prevTurn = " "
@@ -145,6 +145,7 @@ while True:
     
     print("turning: ", turning)
     if(not turning):
+        #pid linefollow
         error = leftArea-rightArea
         print("error: ", error)
         proportional=(target - error)*kp
@@ -166,7 +167,7 @@ while True:
             ser.write((str(angle)+"\n").encode('utf-8'))
             print("angle: ", angle)
         
-        speed = 1370
+        speed = 1300
         ser.write((str(speed) + "\n").encode('utf-8'))
         print("speed: ", speed)
     
@@ -200,21 +201,23 @@ while True:
     #    turning = False
     
     
-    if leftArea < 20:
+    #this shit is turning code
+    if leftArea < 1000:
         print("turning left")
         turning = True
         angle = 2025
         ser.write((str(angle) + "\n").encode('utf-8'))
         print("angle: ", angle)
-        speed = 1370
+        speed = 1300
         ser.write((str(speed) + "\n").encode('utf-8'))
         print("speed: ", speed)
-    elif rightArea < 10:
+    elif rightArea < 1000:
         print("turning right")
+        turning = True
         angle = 2095
         ser.write((str(angle) + "\n").encode('utf-8'))
         print("angle: ", angle)
-        speed = 1370
+        speed = 1300
         ser.write((str(speed) + "\n").encode('utf-8'))
         print("speed: ", speed)
     else:
