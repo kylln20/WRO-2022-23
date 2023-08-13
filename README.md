@@ -35,16 +35,16 @@ This document contains materials of Team [blank]'s self driving vehicle from Can
 𓆩♡𓆪 [Other](https://github.com/kylln20/WRO-2022-23/tree/main/other) | Other essential materials or documentation regarding our vehicle | ✦
 
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-# Robot Mechanical Design
+# ꕤ✿✧ Robot Mechanical Design ✧✿ꕤ
 
-# Robot Electrical Design
+# ꕤ✿✧ Robot Electrical Design ✧✿ꕤ
 
-# Software Design
+# ꕤ✿✧ Software Design ✧✿ꕤ
 
-# Design choies
+# ꕤ✿✧ Design choies ✧✿ꕤ
 
-# Open Challenge Strategy
+# ꕤ✿✧ Open Challenge Strategy ✧✿ꕤ
 
-# Obstacle Challenge strategy
+# ꕤ✿✧ Obstacle Challenge strategy ✧✿ꕤ
 
-# Parts List
+# ꕤ✿✧ Parts List ✧✿ꕤ
