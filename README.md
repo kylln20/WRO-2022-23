@@ -35,16 +35,18 @@ This document contains materials of Team [blank]'s self driving vehicle from Can
 𓆩♡𓆪 [Other](https://github.com/kylln20/WRO-2022-23/tree/main/other) | Other essential materials or documentation regarding our vehicle | ✦
 
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-## ꕤ✿✧ Robot Mechanical Design ✧✿ꕤ
+## ✧ Robot Mechanical Design ✧
 
-## ꕤ✿✧ Robot Electrical Design ✧✿ꕤ
+## ✧ Robot Electrical Design ✧
 
-## ꕤ✿✧ Software Design ✧✿ꕤ
+## ✧ Software Design ✧
 
-## ꕤ✿✧ Design choies ✧✿ꕤ
+## ✧ Design choies ✧
 
-## ꕤ✿✧ Open Challenge Strategy ✧✿ꕤ
+## ✧ Open Challenge Strategy ✧
 
-## ꕤ✿✧ Obstacle Challenge strategy ✧✿ꕤ
+## ✧ Obstacle Challenge strategy ✧
 
-## ꕤ✿✧ Parts List ✧✿ꕤ
+## ✧ Parts List ✧
++ TRA97074-1 Traxxas TRX-4M Ford Bronco 1/18 RTR 4X4 Trail Truck, White ($199 cad) | [Link](https://www.bigboyswithcooltoys.ca/products/tra97074-1-traxxas-trx-4m-ford-bronco-1-18-rtr-4x4-trail-truck-white)
++ Lego Mindstorm Ev3 Core Set |[Link](https://www.amazon.com/Lego-Mindstorm-Ev3-Core-45544/dp/B00DEA55Z8)
