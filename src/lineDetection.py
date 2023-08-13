@@ -55,8 +55,11 @@ turning = False
 
 prevFrameTime = 0
 newFrameTime = 0
-
 fpsCount = 0
+
+prevBlue = False
+currBlue = False
+blueCount = 0
 
 while True:
     im= picam2.capture_array()
@@ -171,7 +174,7 @@ while True:
         ser.write((str(speed) + "\n").encode('utf-8'))
         print("speed: ", speed)
     
-    cv2.imshow("colours!", imgRoi)
+    
     
     
     #check if should turn
@@ -225,6 +228,53 @@ while True:
         
     print(" ");
     
+    #counting laps code
+    img_hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
+        
+    lowerBlue = np.array([105, 60, 130])
+    upperBlue = np.array([125, 180, 180])
+    blueMask = cv2.inRange(img_hsv, lowerBlue, upperBlue)
+
+    blueContours, blueHierarchy = cv2.findContours(blueMask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    maxBlueArea = 0
+    for i in blueContours:
+        blueArea = cv2.contourArea(i)
+        x, y, w, h = cv2.boundingRect(i)
+        cv2.rectangle(imgRoi, (x, y), (x+w, y+h), (0, 0, 255), 2)
+        if blueArea > maxBlueArea:
+            maxBlueArea = blueArea
+            
+    if maxBlueArea > 5000:
+        currBlue = True
+    else: 
+        currBlue = False
+    print("prev blue:", prevBlue)
+    print("curr blue:", currBlue)
+    print("max blue area:", maxBlueArea)
+    if not prevBlue == currBlue:
+        blueCount = blueCount + 1
+    print("count of blue: ", blueCount)
+    prevBlue = currBlue
+    
+    ### show all regions of interest / contours
+    cv2.imshow("colours!", imgRoi)
+    if blueCount == 5:
+        lastTurnTime = time.time()
+        
+    if blueCount == 6:
+        #delay( to be changed)
+        newTurnTime = time.time()
+        if newTurnTime - lastTurnTime > 3:
+            speed = 1500
+            ser.write((str(speed) + "\n").encode('utf-8'))
+            print("speed: ", speed)
+            
+            angle = 2060
+            ser.write((str(angle) + "\n").encode('utf-8'))
+            print("angle: ", angle)
+            break
+    
+    #frame rate ded code
     newFrameTime = time.time()
     fps = 1.0/(newFrameTime-prevFrameTime)
     prevFrameTime = newFrameTime
@@ -242,6 +292,8 @@ while True:
         print("angle: ", angle)
         break
     
+    
+    #stop the program code
     if cv2.waitKey(1)==ord('q'):#wait until key ‘q’ pressed
         speed = 1500
         ser.write((str(speed) + "\n").encode('utf-8'))
@@ -251,5 +303,7 @@ while True:
         ser.write((str(angle) + "\n").encode('utf-8'))
         print("angle: ", angle)
         break
+    
+    
         
 cv2.destroyAllWindows()
