@@ -11,6 +11,7 @@ This document contains materials of Team [blank]'s self driving vehicle from Can
 + **Repository Contents**
 + **Mechanical Design**
 + **Electrical design**
++ **Software Design**
 + **Design Choices**
 + **Open Challenge Strategy**
 + **Obstacle Challenge Strategy**
