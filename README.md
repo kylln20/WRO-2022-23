@@ -37,15 +37,15 @@ This document contains materials of Team [blank]'s self driving vehicle from Can
 
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 ## ✧ Robot Mechanical Design ✧
-    The vehicle is based off the white Traxxas Ford Bronco with adjusted motors and electrical systems. We used 3D-printed parts and EV3 lego parts to aid in holding our vehicle together.
+  The vehicle is based off the white Traxxas Ford Bronco with adjusted motors and electrical systems. We used 3D-printed parts and EV3 lego parts to aid in holding our vehicle together. The original esc and motor have been replaced with a custom made esc we soddered and a motor we bought from the same suppliers as the Bronco. We removed the cover, front and back bumper, extra lights, and the suspension mechanism from the base Bronco. With the 3D printed board we put all our parts on top of it.
 ## ✧ Robot Electrical Design ✧
-    Primarily working using its two "brains" the Master Raspberry pi and the slave arduion, out vehicle moves with signals sent between the two. (Refer to circuit sheet?)
+  Primarily working using its two "brains" the Master Raspberry pi and the slave arduion, out vehicle moves with signals sent between the two. The arduino has control over the DC and servo motor which control the movement and steering respectively using pulse-with-modulation. The raspberry pi has control over our camera and sends signals to the arduino based off the detection system we have coded, these signals help steer the vehicle in the right direction. (Refer to circuit sheet?)
 ## ✧ Software Design ✧
-    Our team uses Python for the raspberry pi's coding in order to run the arduino that controls our motors with c++ coding.
+  Our team uses Python for the raspberry pi's coding in order to run the arduino that controls our motors with c++ coding. 
 ## ✧ Design choies ✧
-    We originally opted for a completely 3D printed design, but ended up having to use a hybrid of LEGO EV3 and 3D printed parts due to unforseen issues.
+  We originally opted for a completely 3D printed design, but ended up having to use a hybrid of LEGO EV3 and 3D printed parts due to unforseen issues.
 ## ✧ Open Challenge Strategy ✧
-    For the Open Challenge, we decided to take frames recorded from our camera and filter out so the black walls were highlighted. We then use regions of interest to help wall-follow and to help determine when to turn.
+  For the Open Challenge, we decided to take frames recorded from our camera and filter out so the black walls were highlighted. We then use regions of interest to help wall-follow and to help determine when to turn. With a PD following system we can fine tune the driving and turning so that our vehicle wll procede smoothly.
 ## ✧ Obstacle Challenge strategy ✧
     NA?
 
