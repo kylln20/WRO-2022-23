@@ -9,6 +9,7 @@ This document contains materials of Team [blank]'s self driving vehicle from Can
 ## Table of Contents
 
 + **Repository Contents**
+  
 + **Robot Mechanical Design**
 + **Robot Electrical design**
 + **Software Design**
@@ -36,11 +37,11 @@ This document contains materials of Team [blank]'s self driving vehicle from Can
 
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 ## ✧ Robot Mechanical Design ✧
-    ????
+    Our robot is based off the white Traxxas Ford Bronco with adjusted motors and electrical systems. We used 3D-printed parts and EV3 lego parts to aid in holding our vehicle together.
 ## ✧ Robot Electrical Design ✧
-    (Refer to circuit sheet?)
+    Our vehicle primary works using its two "brains", the master brain our raspberry pi 4, and our slave brain the arduino. (Refer to circuit sheet?)
 ## ✧ Software Design ✧
-    Our team uses Python (List the other programs here)
+    Our team uses Python for the raspberry pi's coding in order to run the arduino that controls our motors with c++ coding.    (List the other programs here)
 ## ✧ Design choies ✧
     We originally opted for a completely 3D printed design, but ended up having to use a hybrid of LEGO EV3 and 3D printed parts due to unforseen issues.
 ## ✧ Open Challenge Strategy ✧
