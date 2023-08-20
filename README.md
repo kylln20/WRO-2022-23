@@ -36,16 +36,17 @@ This document contains materials of Team [blank]'s self driving vehicle from Can
 
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 ## ✧ Robot Mechanical Design ✧
-
+    ????
 ## ✧ Robot Electrical Design ✧
-
+    (Refer to circuit sheet?)
 ## ✧ Software Design ✧
-
+    Our team uses Python (List the other programs here)
 ## ✧ Design choies ✧
-
+    We originally opted for a completely 3D printed design, but ended up having to use a hybrid of LEGO EV3 and 3D printed parts due to unforseen issues.
 ## ✧ Open Challenge Strategy ✧
-
+    For the Open Challenge, we decided to take frames recorded from our camera and filter out so the black walls were highlighted. We then use regions of interest to help wall-follow and to help determine when to turn.
 ## ✧ Obstacle Challenge strategy ✧
+    NA?
 
 ## ✧ Parts List ✧
 + TRA97074-1 Traxxas TRX-4M Ford Bronco 1/18 RTR 4X4 Trail Truck, White ($199 cad) | [Link](https://www.bigboyswithcooltoys.ca/products/tra97074-1-traxxas-trx-4m-ford-bronco-1-18-rtr-4x4-trail-truck-white)
