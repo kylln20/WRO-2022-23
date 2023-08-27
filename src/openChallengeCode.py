@@ -142,7 +142,7 @@ while True:
             print("angle: ", angle)
     
     #turning code
-    if leftArea < 1500:
+    if leftArea < 1000:
         print("turning left")
         turning = True
         angle = 2025
@@ -151,7 +151,7 @@ while True:
         speed = 1270
         ser.write((str(speed) + "\n").encode('utf-8'))
         print("speed: ", speed)
-    elif rightArea < 1500:
+    elif rightArea < 1000:
         print("turning right")
         turning = True
         angle = 2095
