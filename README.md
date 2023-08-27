@@ -1,4 +1,4 @@
-# ꕤ✿✧ *Engineering Documentation* ✧✿ꕤ
+x# ꕤ✿✧ *Engineering Documentation* ✧✿ꕤ
 
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
@@ -7,9 +7,9 @@ This document contains materials of Team [blank]'s self driving vehicle from Can
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
 ## Table of Contents
+  A list of things in this readme file
 
 + **Repository Contents**
-  
 + **Robot Mechanical Design**
 + **Robot Electrical design**
 + **Software Design**
@@ -21,6 +21,8 @@ This document contains materials of Team [blank]'s self driving vehicle from Can
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
 ## Respository Contents
+  Contents of the full repository
+
 𓆩♡𓆪 [Models](https://github.com/kylln20/WRO-2022-23/tree/main/models) | This folder contains all 3D printed models used | ✦
 
 𓆩♡𓆪 [Schemes](https://github.com/kylln20/WRO-2022-23/tree/main/schemes) | This folder contains the electrical chematics of the vehicle | ✦
