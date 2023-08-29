@@ -25,9 +25,9 @@ while True:
 time.sleep(5)
 
 #default speed and angle of the RC car
-speed = 1270
+speed = 1300
 angle = 2060
-            
+prevAngle = 2060
 
 #set up pi camera
 picam2 = Picamera2()
@@ -44,11 +44,12 @@ error=0
 prevError=0
 target=0
 diff=0
-kd=0.001
+kd=0.0009
 kp=-0.0012
 
 #turning code variables
 turning = False
+prevTurn = " " 
 prevBlue = False
 currBlue = False
 blueCount = 0
@@ -142,26 +143,49 @@ while True:
             print("angle: ", angle)
     
     #turning code
-    if leftArea < 1000:
-        print("turning left")
-        turning = True
-        angle = 2025
-        ser.write((str(angle) + "\n").encode('utf-8'))
-        print("angle: ", angle)
-        speed = 1270
-        ser.write((str(speed) + "\n").encode('utf-8'))
-        print("speed: ", speed)
-    elif rightArea < 1000:
-        print("turning right")
-        turning = True
-        angle = 2095
-        ser.write((str(angle) + "\n").encode('utf-8'))
-        print("angle: ", angle)
-        speed = 1270
-        ser.write((str(speed) + "\n").encode('utf-8'))
-        print("speed: ", speed)
+    """
+    topContours, tophierarchy = cv2.findContours(imgThresh[100:250, 200:600].copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    maxTopArea = 0
+    for i in topContours:
+        topArea = cv2.contourArea(i)
+        if topArea > maxTopArea:
+            x, y, w, h = cv2.boundingRect(i)
+            cv2.rectangle(imgRoi, (x+200, y+100), (x+w+200, y+h+100), (0, 0, 255), 2)
+            if topArea > maxTopArea:
+                maxTopArea = topArea
+    topArea = maxTopArea
+    """
+    
+    if leftArea < 900 and rightArea < 900:
+        if turning == True:
+            if prevTurn == "left":
+                print("turning left")
+                angle = 2030
+            elif prevTurn == "right":
+                print("turning right")
+                angle = 2090
+    elif leftArea < 900:
+        if turning == False:
+            print("turning left")
+            turning = True
+            angle = 2030
+            prevTurn = "left"
+    elif rightArea < 900:
+        if turning == False:
+            print("turning right")
+            turning = True
+            angle = 2090
+            prevTurn = "right"
     else:
+        if turning == True:
+            prevTurn = "none"
         turning = False
+    
+    ser.write((str(angle) + "\n").encode('utf-8'))
+    
+    if prevAngle != angle:
+        print("angle: ", angle)
+    prevAngle = angle
             
     #counting laps code
     img_hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
@@ -187,8 +211,9 @@ while True:
     if not prevBlue == currBlue:
         blueCount = blueCount + 1
     print("count of blue: ", blueCount)
-    if blueCount % 2 == 0 && prevBlue != currBlue:
+    if blueCount % 2 == 0 and prevBlue != currBlue:
         prevDiff = 0
+        prevTurn = " "
     prevBlue = currBlue
    
     print(" ")
@@ -197,16 +222,18 @@ while True:
     cv2.imshow("colours!", imgRoi)
     
     #stopping mechanism
-    if blueCount == 23:
+    if blueCount == 11:
         turnTime = time.time()
     endTurnTime = time.time()
+    """
     countblack = 0
     for i in range(250, 501):
         if imgThresh[100][i] == 255:
             countblack += 1
     countblack = countblack / 250
     print(countblack)
-    if countblack > 0.9 and blueCount >= 24 and endTurnTime-turnTime >= 0.8:
+    """
+    if blueCount >= 12 and endTurnTime-turnTime >= 1:
         speed = 1500
         ser.write((str(speed) + "\n").encode('utf-8'))
         print("speed: ", speed)
@@ -215,6 +242,11 @@ while True:
         ser.write((str(angle) + "\n").encode('utf-8'))
         print("angle: ", angle)
         break
+        
+    speed = 1270
+    ser.write((str(speed) + "\n").encode('utf-8'))
+    print("speed: ", speed)
+    
     
     #stops the bot if the frame rate begins to lag, to prevent crashing into the wall
     newFrameTime = time.time()
@@ -241,9 +273,9 @@ while True:
         ser.write((str(speed) + "\n").encode('utf-8'))
         print("speed: ", speed)
         
-        angle = 2060
-        ser.write((str(angle) + "\n").encode('utf-8'))
-        print("angle: ", angle)
+        #angle = 2060
+        #ser.write((str(angle) + "\n").encode('utf-8'))
+        #print("angle: ", angle)
         break
     
         
