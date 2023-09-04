@@ -53,10 +53,11 @@ kd=0.001
 kp=-0.0012
 
 kdo = 0
-kpo = 0.08
+kpo = 0.09
+closeToWall = False
 
 turning = False
-#prevTurn = " "
+prevTurn = "none"
 
 prevFrameTime = 0
 newFrameTime = 0
@@ -86,17 +87,8 @@ while True:
     lowThresh = int(max(0, (1.0 - 0.33) * v))
     highThresh = int(min(180, (1.0 + 0.33) * v))
     
-    #cv2.imshow("grayscale + blur", imBlur) #blurred image that edge detection is used on
-    #cv2.imshow("thresh",imgThresh)
-    
     imgRoi = cv2.cvtColor(imgThresh, cv2.COLOR_GRAY2RGB)
-    """
-    imgRoi = cv2.line(imgRoi, points[0], points[1], (0, 155, 0), 4)
-    imgRoi = cv2.line(imgRoi, points[1], points[2], (0, 155, 0), 4)
-    imgRoi = cv2.line(imgRoi, points[2], points[3], (0, 155, 0), 4)
-    imgRoi = cv2.line(imgRoi, points[3], points[0], (0, 155, 0), 4)
-    imgRoi = cv2.line(imgRoi, (200, 200), (600, 200), (0, 155, 0), 4)
-    """
+
     #cv2.imshow("region of interest", imgRoi)
     
     
@@ -104,11 +96,6 @@ while True:
     
     cv2.rectangle(imgRoi, (0, 250), (200, 600), (0, 255, 0), 2) #left
     cv2.rectangle(imgRoi, (600, 250), (800, 600), (0, 255, 0), 2) #right
-    
-    #keep car going straight
-    ## initial contour detection
-    #contours, hierarchy = cv2.findContours(imgInversePerspective, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    #print(len(contours))
     
     imgThresh = cv2.bitwise_not(imgThresh)
 
@@ -122,7 +109,7 @@ while True:
         if leftArea > 300:
             x, y, w, h = cv2.boundingRect(i)
             #cv2.rectangle(imgPerspectiveRGB, (x, y+200), (x+w, y+h+200), (0, 0, 255), 2) #add crop offset 
-            cv2.rectangle(imgRoi, (x, y+250), (x+w, y+h+250), (0, 0, 255), 2)
+            #cv2.rectangle(imgRoi, (x, y+250), (x+w, y+h+250), (0, 255, 0), 2)
             if leftArea > maxLeftArea:
                 maxLeftArea = leftArea
     leftArea = maxLeftArea
@@ -134,7 +121,7 @@ while True:
         if rightArea > 300:
             x, y, w, h = cv2.boundingRect(i)
             #cv2.rectangle(imgPerspectiveRGB, (x+600, y+200), (x+w+600, y+h+200), (255, 0, 0), 2)#add crop offset 
-            cv2.rectangle(imgRoi, (x+600, y+250), (x+w+600, y+h+250), (255, 0, 0), 2) 
+            #cv2.rectangle(imgRoi, (x+600, y+250), (x+w+600, y+h+250), (0, 255, 0), 2) 
             if rightArea > maxRightArea:
                 maxRightArea = rightArea
     rightArea = maxRightArea
@@ -176,16 +163,16 @@ while True:
             maxGreenArea = greenArea
             maxGreenIndex = i
             xg, yg, wg, hg = cv2.boundingRect(i)
-            cv2.rectangle(imgRoi, (xg+50, yg+100), (xg+wg+50, yg+hg+100), (0, 255, 0), 2)
+            cv2.rectangle(imgRoi, (xg+50, yg+100), (xg+wg+50, yg+hg+100), (255, 0, 0), 2)
 
-    if maxGreenArea > 300 and maxRedArea > 300:
+    if maxGreenArea > 250 and maxRedArea > 250:
         if yg+hg > yr+hr:
             obstacle = "green"
         else:
             obstacle = "red"
-    elif maxGreenArea > 300:
+    elif maxGreenArea > 250:
         obstacle = "green"
-    elif maxRedArea > 300:
+    elif maxRedArea > 250:
         obstacle = "red"
     else:
         obstacle = "none"
@@ -194,9 +181,12 @@ while True:
     if prevObstacle != obstacle:
         prevError = 0
     
-    if turning:
+    
+    print("turning:", turning)
+    if not turning:
         if obstacle == "red":
             target = 200
+            print("red coor:", xr+wr)
             error = xr + wr - target
             print("error:", error)
             #print("red:", xr+wr)
@@ -219,6 +209,7 @@ while True:
             prevObstacle = obstacle
         elif obstacle == "none":
             #pid linefollow
+            target = 0
             print("target: ", target)
             error = leftArea-rightArea
             print("error: ", error)
@@ -243,48 +234,67 @@ while True:
             ser.write((str(angle)+"\n").encode('utf-8'))
             print("angle: ", angle)
     else: #turning states
+        num = 0
+        for i in range(200, 600):
+            if imgThresh[200][i] == 255:
+                num = num+1
+        print("wall percentage:", num/400.0)
+        if num/540.0 < 0.10:
+            closeToWall = True
+        else:
+            closeToWall = False
+            
+        print("prev turn:", prevTurn)
         #check which direction is turning in
         if leftArea < 900 and rightArea < 900:
-                if turning == True:
-                    if prevTurn == "left":
-                        print("turning left")
-                    elif prevTurn == "right":
-                        print("turning right")
-            elif leftArea < 900:
-                if turning == False:
+            if turning == True:
+                if prevTurn == "left":
                     print("turning left")
-                    turning = True
-                    prevTurn = "left"
-            elif rightArea < 900:
-                if turning == False:
+                elif prevTurn == "right":
                     print("turning right")
-                    turning = True
-                    prevTurn = "right"
-            else:
-                if turning == True:
-                    prevTurn = "none"
-                turning = False
+        elif leftArea < 900:
+            #if turning == False:
+                print("turning left")
+                turning = True
+                prevTurn = "left"
+        elif rightArea < 900:
+            #if turning == False:
+                print("turning right")
+                turning = True
+                prevTurn = "right"
+        else:
+            if turning == True:
+                prevTurn = "none"
+                print("not turning?")
+            turning = False
         #then based on obstacle, do stuff
+        
         if obstacle == "red":
             if prevTurn == "left":
-                #check front wall, if close, then sharp turn
-                #else, then don't yet turn
+                if closeToWall:
+                    print("sharp turn to left")
+                else:
+                    print("keep going straight")
             elif prevTurn == "right":
-                #sharp turn
+                print("sharp turn to right")
         elif obstacle == "green":
             if prevTurn == "left":
-                #sharp turn
+                print("sharp turn to left")
             elif prevTurn == "right":
-                #check front wall, if close, then sharp turn
-                #else, then don't yet turn
+                if closeToWall:
+                    print("sharp turn to right")
+                else:
+                    print("keep going straight")
         else:
             if prevTurn == "left":
                 angle = 2030
             elif prevTurn == "right":
                 angle = 2090
     
-    
-    speed = 1500
+    ser.write((str(angle)+"\n").encode('utf-8'))
+    print("angle: ", angle)
+            
+    speed = 1370
     ser.write((str(speed) + "\n").encode('utf-8'))
     print("speed: ", speed)
             
@@ -301,7 +311,8 @@ while True:
         blueArea = cv2.contourArea(i)
         x, y, w, h = cv2.boundingRect(i)
         if blueArea > 3000:
-            cv2.rectangle(imgRoi, (x, y), (x+w, y+h), (0, 0, 255), 2)
+            #cv2.rectangle(imgRoi, (x, y), (x+w, y+h), (255, 0, 0), 2)
+            print("blue thing")
         if blueArea > maxBlueArea:
             maxBlueArea = blueArea
             
