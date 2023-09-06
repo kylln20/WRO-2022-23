@@ -21,9 +21,7 @@ GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 while True:
     if GPIO.input(5) == GPIO.LOW:
         break
-        
-time.sleep(5)
-
+    
 #default speed and angle of the RC car
 speed = 1300
 angle = 2060
