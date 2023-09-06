@@ -11,7 +11,6 @@ void setup(){
   servoMotor.write(90);
   BLDCMotor.attach(10, 1000, 2000);
   BLDCMotor.writeMicroseconds(1500);
-  delay(5000);
 }
 
 void loop(){
