@@ -16,6 +16,8 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+time.sleep(3)
+
 #checks if the button was pressed: if it is, the program starts
 while True:
     if GPIO.input(5) == GPIO.LOW:
@@ -179,6 +181,21 @@ while True:
             prevTurn = "none"
         turning = False
     
+    cv2.rectangle(imgRoi, (200, 260), (600, 260), (0, 255, 0), 2)
+    num = 0
+    for i in range(200, 600):
+        if imgThresh[260][i] == 255:
+            num = num+1
+    print("wall percentage:", num/400.0)
+    if num/400.0 > 0.70:
+        closeToWall = True
+    else:
+        closeToWall = False
+    print("close to wall:", closeToWall)
+    
+    if closeToWall and not turning:
+        if rightArea < leftArea and rightArea < 5000:
+            angle = 2095
     
     ser.write((str(angle) + "\n").encode('utf-8'))
     print("angle: ", angle)
@@ -191,22 +208,23 @@ while True:
     upperBlue = np.array([130, 255, 255])
     blueMask = cv2.inRange(img_hsv, lowerBlue, upperBlue)
 
-    blueContours, blueHierarchy = cv2.findContours(blueMask[200:600, :], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    blueContours, blueHierarchy = cv2.findContours(blueMask[250:550, ], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     maxBlueArea = 0
     for i in blueContours:
         blueArea = cv2.contourArea(i)
         x, y, w, h = cv2.boundingRect(i)
-        if blueArea > 5000:
+        if blueArea > 2500:
             cv2.rectangle(imgRoi, (x, y), (x+w, y+h), (0, 0, 255), 2)
         if blueArea > maxBlueArea:
             maxBlueArea = blueArea
-            
     if maxBlueArea > 2500:
         currBlue = True
     else: 
         currBlue = False
     if not prevBlue == currBlue:
         blueCount = blueCount + 1
+        if currBlue == True:
+            turnTime = time.time()
     print("count of blue: ", blueCount)
     if blueCount % 2 == 0 and prevBlue != currBlue:
         prevDiff = 0
@@ -224,12 +242,12 @@ while True:
     
     countblack = 0
     for i in range(250, 501):
-        if imgThresh[100][i] == 255:
+        if imgThresh[200][i] == 255:
             countblack += 1
     countblack = countblack / 250
     print(countblack)
-
-    if countblack < 0.15 and blueCount >= 24 and endTurnTime-turnTime >= 1.2:
+    
+    if countblack < 0.10 and blueCount >= 24 and endTurnTime-turnTime >= 1.2:
         speed = 1500
         ser.write((str(speed) + "\n").encode('utf-8'))
         print("speed: ", speed)
@@ -239,7 +257,7 @@ while True:
         print("angle: ", angle)
         break
         
-    speed = 1300
+    speed = 1310
     ser.write((str(speed) + "\n").encode('utf-8'))
     print("speed: ", speed)
     
@@ -274,6 +292,6 @@ while True:
         #print("angle: ", angle)
         break
     """
-    #cv2.imshow("colours!", imgRoi)
+    cv2.imshow("colours!", imgRoi)
         
 cv2.destroyAllWindows()
