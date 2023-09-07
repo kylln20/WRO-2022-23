@@ -21,8 +21,6 @@ while True:
     if GPIO.input(5) == GPIO.LOW:
         break
         
-time.sleep(5)
-
 #1270
 speed = 1500
 angle = 2060
@@ -69,6 +67,7 @@ blueCount = 0
 
 obstacle = "none"
 prevObstacle = "none"
+turnObstacle = " "
 
 xr,yr, wr, hr = 0, 0, 0, 0
 xg, yg, wg, hg = 0, 0, 0, 0
@@ -88,12 +87,9 @@ while True:
     highThresh = int(min(180, (1.0 + 0.33) * v))
     
     imgRoi = cv2.cvtColor(imgThresh, cv2.COLOR_GRAY2RGB)
-
-    #cv2.imshow("region of interest", imgRoi)
+        
     
-    
-    ####new regions of interest
-    
+    ####wall regions of interest
     cv2.rectangle(imgRoi, (0, 250), (200, 600), (0, 255, 0), 2) #left
     cv2.rectangle(imgRoi, (600, 250), (800, 600), (0, 255, 0), 2) #right
     
@@ -129,7 +125,42 @@ while True:
     print("left area:", leftArea)
     print("right area:", rightArea)
     
-    
+    ##check if is in turning state
+    if leftArea < 900 and rightArea < 1500:
+        if turning == True:
+            if prevTurn == "left":
+                print("turning left")
+            elif prevTurn == "right":
+                print("turning right")
+    elif leftArea < 900:
+        if turning == False:
+            print("turning left")
+            turning = True
+            prevTurn = "left"
+    elif rightArea < 1500:
+        if turning == False:
+            print("turning right")
+            turning = True
+            prevTurn = "right"
+    else:
+        if turning == True:
+            prevTurn = "none"
+            print("not turning?")
+        turning = False
+        
+    ###check if is close to wall
+    cv2.rectangle(imgRoi, (200, 260), (600, 260), (0, 255, 0), 2)
+    num = 0
+    for i in range(200, 600):
+        if imgThresh[260][i] == 255:
+            num = num+1
+    print("wall percentage:", num/400.0)
+    if num/400.0 > 0.70:
+        closeToWall = True
+    else:
+        closeToWall = False
+    print("close to wall:", closeToWall)
+    ###look for obstacles
     img_hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
     
     #red obstacle detection
@@ -153,7 +184,6 @@ while True:
             maxRedIndex = i
             xr, yr, wr, hr = cv2.boundingRect(i)
             cv2.rectangle(imgRoi, (xr+50, yr+100), (xr+wr+50, yr+hr+100), (255, 0, 0), 2)
-
 
     maxGreenArea = 0
     maxGreenIndex = 0
@@ -181,8 +211,8 @@ while True:
     if prevObstacle != obstacle:
         prevError = 0
     
-    
-    print("turning:", turning)
+    ###based on obstacles, make decisions 
+    #if not turning state, use PID based on obstacles   
     if not turning:
         if obstacle == "red":
             target = 200
@@ -233,58 +263,27 @@ while True:
             angle = 2035
             ser.write((str(angle)+"\n").encode('utf-8'))
             print("angle: ", angle)
-    else: #turning states
-        num = 0
-        for i in range(200, 600):
-            if imgThresh[200][i] == 255:
-                num = num+1
-        print("wall percentage:", num/400.0)
-        if num/540.0 < 0.10:
-            closeToWall = True
-        else:
-            closeToWall = False
-            
-        print("prev turn:", prevTurn)
-        #check which direction is turning in
-        if leftArea < 900 and rightArea < 900:
-            if turning == True:
-                if prevTurn == "left":
-                    print("turning left")
-                elif prevTurn == "right":
-                    print("turning right")
-        elif leftArea < 900:
-            #if turning == False:
-                print("turning left")
-                turning = True
-                prevTurn = "left"
-        elif rightArea < 900:
-            #if turning == False:
-                print("turning right")
-                turning = True
-                prevTurn = "right"
-        else:
-            if turning == True:
-                prevTurn = "none"
-                print("not turning?")
-            turning = False
-        #then based on obstacle, do stuff
-        
+    else: #if turning state, hard write angle based on previous calculations
         if obstacle == "red":
             if prevTurn == "left":
                 if closeToWall:
-                    print("sharp turn to left")
+                    angle = 2025
                 else:
-                    print("keep going straight")
+                    angle = 2060
             elif prevTurn == "right":
-                print("sharp turn to right")
+                angle = 2095
+                print("red, right turn")
         elif obstacle == "green":
             if prevTurn == "left":
-                print("sharp turn to left")
+                angle = 2025
             elif prevTurn == "right":
+                angle = 2075
                 if closeToWall:
-                    print("sharp turn to right")
+                    angle = 2095
+                    ("green, right turn")
                 else:
-                    print("keep going straight")
+                    angle = 2060
+                    ("green, not yet") 
         else:
             if prevTurn == "left":
                 angle = 2030
@@ -311,8 +310,7 @@ while True:
         blueArea = cv2.contourArea(i)
         x, y, w, h = cv2.boundingRect(i)
         if blueArea > 3000:
-            #cv2.rectangle(imgRoi, (x, y), (x+w, y+h), (255, 0, 0), 2)
-            print("blue thing")
+            cv2.rectangle(imgRoi, (x, y), (x+w, y+h), (255, 0, 0), 2)
         if blueArea > maxBlueArea:
             maxBlueArea = blueArea
             
@@ -329,11 +327,17 @@ while True:
     print("count of blue: ", blueCount)
     prevBlue = currBlue
     
-    print(" ")
-    
     
     ### show all regions of interest / contours
     cv2.imshow("colours!", imgRoi)
+    
+    if blueCount == 14:
+        if obstacle == "red" or obstacle == "green":
+            turnObstacle = obstacle
+    
+    if blueCount == 16 and turnObstacle == "red":
+        print("three point turn here")
+        
     if blueCount == 23:
         lastTurnTime = time.time()
         
@@ -380,6 +384,6 @@ while True:
         print("angle: ", angle)
         break
     
-    
+    print(" ")
         
 cv2.destroyAllWindows()
