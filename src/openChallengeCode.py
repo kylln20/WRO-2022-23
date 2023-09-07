@@ -11,7 +11,6 @@ from time import sleep
 ser = serial.Serial('/dev/ttyACM0', 115200, timeout = 1) #approximately 115200 characters per second
 ser.flush() #block the program until all the outgoing data has been sent
 
-
 #setting up the pisugar button
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
@@ -21,11 +20,12 @@ GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 while True:
     if GPIO.input(5) == GPIO.LOW:
         break
-    
+
 #default speed and angle of the RC car
-speed = 1300
+speed = 1270
 angle = 2060
 prevAngle = 2060
+
 
 #set up pi camera
 picam2 = Picamera2()
@@ -85,7 +85,7 @@ while True:
     #looking for the black contours in the thresholded image
     #the left wall and the right wall contours are searched for in different regions of interest
     leftContours, lefthierarchy = cv2.findContours(imgThresh[250:600, 0:200].copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    rightContours, righthierarchy = cv2.findContours(imgThresh[250: 600, 600: 800].copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    rightContours, righthierarchy = cv2.findContours(imgThresh[250:600, 600:800].copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     #looking for the largest black contour on the left side, aka the left wall
     maxLeftArea = 0
@@ -154,7 +154,7 @@ while True:
     topArea = maxTopArea
     """
     
-    if leftArea < 900 and rightArea < 900:
+    if leftArea < 1000 and rightArea < 1500:
         if turning == True:
             if prevTurn == "left":
                 print("turning left")
@@ -162,13 +162,13 @@ while True:
             elif prevTurn == "right":
                 print("turning right")
                 angle = 2090
-    elif leftArea < 900:
+    elif leftArea < 1000:
         if turning == False:
             print("turning left")
             turning = True
             angle = 2030
             prevTurn = "left"
-    elif rightArea < 900:
+    elif rightArea < 1500:
         if turning == False:
             print("turning right")
             turning = True
@@ -179,20 +179,19 @@ while True:
             prevTurn = "none"
         turning = False
     
-    ser.write((str(angle) + "\n").encode('utf-8'))
     
-    if prevAngle != angle:
-        print("angle: ", angle)
-    prevAngle = angle
+    ser.write((str(angle) + "\n").encode('utf-8'))
+    print("angle: ", angle)
+
             
     #counting laps code
     img_hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
         
-    lowerBlue = np.array([75, 100, 100])
+    lowerBlue = np.array([75, 50, 50])
     upperBlue = np.array([130, 255, 255])
     blueMask = cv2.inRange(img_hsv, lowerBlue, upperBlue)
 
-    blueContours, blueHierarchy = cv2.findContours(blueMask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    blueContours, blueHierarchy = cv2.findContours(blueMask[200:600, :], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     maxBlueArea = 0
     for i in blueContours:
         blueArea = cv2.contourArea(i)
@@ -202,7 +201,7 @@ while True:
         if blueArea > maxBlueArea:
             maxBlueArea = blueArea
             
-    if maxBlueArea > 3000:
+    if maxBlueArea > 2500:
         currBlue = True
     else: 
         currBlue = False
@@ -213,25 +212,24 @@ while True:
         prevDiff = 0
         prevTurn = " "
     prevBlue = currBlue
-   
-    print(" ")
+
     
     ### show all regions of interest / contours
-    cv2.imshow("colours!", imgRoi)
+    #cv2.imshow("colours!", imgRoi)
     
     #stopping mechanism
-    if blueCount == 11:
+    if blueCount == 23:
         turnTime = time.time()
     endTurnTime = time.time()
-    """
+    
     countblack = 0
     for i in range(250, 501):
         if imgThresh[100][i] == 255:
             countblack += 1
     countblack = countblack / 250
     print(countblack)
-    """
-    if blueCount >= 12 and endTurnTime-turnTime >= 1:
+
+    if countblack < 0.15 and blueCount >= 24 and endTurnTime-turnTime >= 1.2:
         speed = 1500
         ser.write((str(speed) + "\n").encode('utf-8'))
         print("speed: ", speed)
@@ -241,7 +239,7 @@ while True:
         print("angle: ", angle)
         break
         
-    speed = 1270
+    speed = 1300
     ser.write((str(speed) + "\n").encode('utf-8'))
     print("speed: ", speed)
     
@@ -264,7 +262,7 @@ while True:
         print("angle: ", angle)
         break
     
-    
+    """
     #stop the program code
     if cv2.waitKey(1)==ord('q'):#wait until key ‘q’ pressed
         speed = 1500
@@ -275,6 +273,7 @@ while True:
         #ser.write((str(angle) + "\n").encode('utf-8'))
         #print("angle: ", angle)
         break
-    
+    """
+    #cv2.imshow("colours!", imgRoi)
         
 cv2.destroyAllWindows()
