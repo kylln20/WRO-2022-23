@@ -76,8 +76,8 @@ while True:
     lowThresh = int(max(0, (1.0 - 0.33) * v))
     highThresh = int(min(180, (1.0 + 0.33) * v))
     
-    #image display for debugging purposes
-    imgRoi = cv2.cvtColor(imgThresh, cv2.COLOR_GRAY2RGB)
+    #previous image display for debugging purposes
+    #imgRoi = cv2.cvtColor(imgThresh, cv2.COLOR_GRAY2RGB)
     
     cv2.rectangle(imgRoi, (0, 250), (200, 600), (0, 255, 0), 2) #left
     cv2.rectangle(imgRoi, (600, 250), (800, 600), (0, 255, 0), 2) #right
@@ -113,13 +113,15 @@ while True:
                 maxRightArea = rightArea
     rightArea = maxRightArea
     
-    #debugging
+    #debugging output statements
     print("left area:", leftArea)
     print("right area:", rightArea)
     
         
-    #PID wall following code
+    #PD wall following code
+    #in the case that the robot doesn't need to turn:
     if(not turning):
+        #based on the visible areas of the left and right walls:
         error = leftArea-rightArea
         proportional=(target - error)*kp
         diff=error-prevError
@@ -127,13 +129,15 @@ while True:
         print("diff:", diff)
         motorSteering=proportional-(diff*kd)
         prevError=error
+        #calculations are done using the P(roportional) D(erivative) formula to calculate how many degrees the robot should turn, motor steering
         print(motorSteering)
+        #if motorSteering is within the physical limits of the servo, then it is applied
         if(motorSteering > -25 and motorSteering < 25):
             angle = 2060 + motorSteering
             angle = int(angle)
             ser.write((str(angle)+"\n").encode('utf-8'))
             print("angle: ", angle)
-        elif(motorSteering > 25):
+        elif(motorSteering > 25): #otherwise, if motorSteering is greater than 25 degrees, or less than -25 degrees, respective extremes are applied
             angle = 2085
             ser.write((str(angle)+"\n").encode('utf-8'))
             print("angle: ", angle)
@@ -142,20 +146,8 @@ while True:
             ser.write((str(angle)+"\n").encode('utf-8'))
             print("angle: ", angle)
     
-    #turning code
-    """
-    topContours, tophierarchy = cv2.findContours(imgThresh[100:250, 200:600].copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    maxTopArea = 0
-    for i in topContours:
-        topArea = cv2.contourArea(i)
-        if topArea > maxTopArea:
-            x, y, w, h = cv2.boundingRect(i)
-            cv2.rectangle(imgRoi, (x+200, y+100), (x+w+200, y+h+100), (0, 0, 255), 2)
-            if topArea > maxTopArea:
-                maxTopArea = topArea
-    topArea = maxTopArea
-    """
-    
+    #turning code: based on the visible areas of the left and right wall
+    #if too little of one wall is visible, that means the robot is approaching a corner and must turn
     if leftArea < 1000 and rightArea < 1500:
         if turning == True:
             if prevTurn == "left":
@@ -180,8 +172,13 @@ while True:
         if turning == True:
             prevTurn = "none"
         turning = False
-    
+
+    #additional debugging code
     cv2.rectangle(imgRoi, (200, 260), (600, 260), (0, 255, 0), 2)
+
+    #in the case where the robot is making a right turn from a 60cm path to another 60cm path
+    #the above turning code does not perform consistently
+    #thus, the code below checks if the robot approached too close to the wall
     num = 0
     for i in range(200, 600):
         if imgThresh[260][i] == 255:
@@ -192,16 +189,21 @@ while True:
     else:
         closeToWall = False
     print("close to wall:", closeToWall)
-    
+
+    #if it is the case that the robot is too close, and also the case that the above turning code has not worked
+    #then the code below forces the robot to make a sharply angled turn to prevent hitting the wall
     if closeToWall and not turning:
         if rightArea < leftArea and rightArea < 5000:
             angle = 2095
-    
+
     ser.write((str(angle) + "\n").encode('utf-8'))
     print("angle: ", angle)
 
             
     #counting laps code
+    #the code counts laps based on the number of times it approaches the blue line at the corner of the mat
+    #the code below, similar to the code to detect black walls, applies a filter to find the... 
+    #...largest area of blue visible within the region of interest.
     img_hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
         
     lowerBlue = np.array([75, 50, 50])
@@ -217,10 +219,16 @@ while True:
             cv2.rectangle(imgRoi, (x, y), (x+w, y+h), (0, 0, 255), 2)
         if blueArea > maxBlueArea:
             maxBlueArea = blueArea
+
+    #if the area exceeds a certain value (2500), then the robot is approaching the blue line
     if maxBlueArea > 2500:
         currBlue = True
     else: 
         currBlue = False
+    #if previously, the camera could not detect blue and now it could, that indicates the robot is approaching the corner
+    #by the same logic, if the camera could previously detect blue and then it can't, that indicates the robot is leaving the corner
+    #in the two above scenarios, (prevBlue doesn't equal currBlue,) a counting number is increased. 
+    #This counts the number of corners approached, as well as is later the indicator for the robot to stop.
     if not prevBlue == currBlue:
         blueCount = blueCount + 1
         if currBlue == True:
@@ -236,17 +244,25 @@ while True:
     #cv2.imshow("colours!", imgRoi)
     
     #stopping mechanism
+    #an additional check for when the robot must turn is here
+    #turnTime is constantly updated while blueCount is equal to 23, 
+    #which stops once the robot leaves the corner and blueCount becomes 24
     if blueCount == 23:
         turnTime = time.time()
     endTurnTime = time.time()
-    
+
+    #a final check for when the robot must turn, the camera looks for 
+    #how much of an area is black, and if that percentage is high enough, 
+    #it means that the robot is approaching the next corner after the ending zone
     countblack = 0
     for i in range(250, 501):
         if imgThresh[200][i] == 255:
             countblack += 1
     countblack = countblack / 250
     print(countblack)
-    
+
+    #if the robot is close enough to the next corner, it has made 24/2 = 12 turns,
+    #and it's been 1.2 seconds since it left the last corner, then the robot is to stop
     if countblack < 0.10 and blueCount >= 24 and endTurnTime-turnTime >= 1.2:
         speed = 1500
         ser.write((str(speed) + "\n").encode('utf-8'))
@@ -292,6 +308,6 @@ while True:
         #print("angle: ", angle)
         break
     """
-    cv2.imshow("colours!", imgRoi)
+    #cv2.imshow("colours!", imgRoi)
         
 cv2.destroyAllWindows()
