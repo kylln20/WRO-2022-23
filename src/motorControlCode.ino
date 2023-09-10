@@ -33,11 +33,11 @@ void loop(){
     inputs[4] = '\0';
     input = atoi(inputs);
     //Serial.println(input);
-    if(input >= 2025 && input <= 2095){
+    if(input >= 2030 && input <= 2095){
       //Servo command
       servoMotor.write(input-2000);
     }
-    if(input <= 1600 && input >= 1100){
+    if(input <= 1800 && input >= 1100){
       //Motor command
       BLDCMotor.writeMicroseconds(input);
     }
