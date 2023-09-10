@@ -329,7 +329,7 @@ while True:
     
     
     ### show all regions of interest / contours
-    cv2.imshow("colours!", imgRoi)
+    #cv2.imshow("colours!", imgRoi)
     
     if blueCount == 14:
         if obstacle == "red" or obstacle == "green":
@@ -374,6 +374,7 @@ while True:
     
     
     #stop the program code
+    """
     if cv2.waitKey(1)==ord('q'):#wait until key ‘q’ pressed
         speed = 1500
         ser.write((str(speed) + "\n").encode('utf-8'))
@@ -383,7 +384,7 @@ while True:
         ser.write((str(angle) + "\n").encode('utf-8'))
         print("angle: ", angle)
         break
-    
+    """
     print(" ")
         
 cv2.destroyAllWindows()
